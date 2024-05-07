@@ -1,0 +1,130 @@
+﻿@page "/login"
+
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using StrapiCMS.ApiClient.Repositories
+@using StrapiCMS.Entity.Dto
+@using StrapiCMS.Entity.Enums
+
+@inject IStrapiApiClient _strapiClient
+@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject NavigationManager navman
+
+
+<div class="page-main">
+    <div class="page-content">
+        <div class="main-content">
+            <div class="login-card ">
+                <div class="login-card-header ">
+                    <header class="login-card__header">
+                        <h1 class="login-card__logo">
+                            <a href="https://www.submarinepens.com">
+                                <img alt="logo" src="https://cdn.shopify.com/s/files/1/0834/2565/7108/files/Submarine_Logo_1_200x60@2x.png?v=1696235816.webp">
+                            </a>
+                        </h1>
+                    </header>
+
+                    <div data-offline="{&quot;visible&quot;:true,&quot;appear&quot;:&quot;down&quot;}" class="connectivity-hidden login-card__content">
+                        <div class="ui-banner ui-banner--status-warning ui-banner--within-page">
+                            <div class="ui-banner__ribbon"><svg class="next-icon next-icon--size-20 next-icon--no-nudge" aria-hidden="true" focusable="false"> <use xlink:href="#CircleAlertMajor"></use> </svg></div><div class="ui-banner__content-container">
+                                <div class="ui-banner__heading"><h2 class="ui-heading">You are offline</h2></div><div class="ui-banner__content">
+                                    <div class="ui-type-container ui-type-container--spacing-tight">
+                                        <p>Reconnect or refresh the page to log in.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="login-card__content">
+                    <div class="main-card-section">
+
+
+                        <div class="headings-container">
+                            <div>
+                                <h1 class="ui-heading">Log in</h1>
+                                <h3 class="ui-subheading ui-subheading--subdued">Enter your email and password to login</h3>
+                            </div>
+                        </div>
+
+
+
+
+                        <EditForm  Model="loginDto" OnValidSubmit="SaveChanges">
+                            <AntiforgeryToken />
+                            <DataAnnotationsValidator />
+                            <div class="ui-form__section">
+                                <div class="ui-form__group type-ahead-wrapper polaris-uplift-input-wrapper">
+
+
+                                    <div class="next-input-wrapper email-input-wrapper">
+                                        <label class="next-label" for="email">Email</label>
+                                        <InputText class="next-input type-ahead-input email-typo-input" typeof="email" id="email" @bind-Value="@loginDto.email" />
+                                        <ValidationMessage For="(() => loginDto.email)" />
+
+                                    </div>
+
+
+                                    <div class="next-input-wrapper lastpass-hidden" aria-hidden="true">
+                                        <label class="next-label" for="pass">Passowrd</label>
+                                        <InputText autocomplete="current-password" tabindex="-1" class="next-input transferable-input" id="pass" @bind-Value="@loginDto.password" />
+                                        <ValidationMessage For="(() => loginDto.password)" />
+                                      
+                                    </div>
+                                </div>
+                            </div>
+                          
+                           
+                           
+                            <button class="btn bakery-btn-style-one w-100 my-2" type="submit">Login</button>
+                        </EditForm>
+
+                   
+
+
+
+
+                        <p class="help-link signup-link">
+                            <span class="help-link__text">
+                                New to customer?
+                            </span>
+                            <a href="/register" class="ui-button ui-button--link arrow-link">
+                                Get started
+                                <span class="arrow-link__icon">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.49951 10C3.49951 9.58579 3.8353 9.25 4.24951 9.25L13.9391 9.25L11.2192 6.53036C10.9263 6.23748 10.9263 5.7626 11.2192 5.4697C11.512 5.17679 11.9869 5.17676 12.2798 5.46964L16.2802 9.46964C16.4209 9.6103 16.4999 9.80107 16.4999 10C16.4999 10.1989 16.4209 10.3897 16.2802 10.5304L12.2798 14.5304C11.9869 14.8232 11.512 14.8232 11.2192 14.5303C10.9263 14.2374 10.9263 13.7625 11.2192 13.4696L13.9391 10.75L4.24951 10.75C3.8353 10.75 3.49951 10.4142 3.49951 10Z" fill="currentColor"></path>
+                                    </svg>
+                                </span>
+                            </a>
+                        </p>
+
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+            <footer class="login-footer">
+                <a class="login-footer__link" target="_blank" href="#" title="Privacy Policy">Privacy</a>
+            </footer>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginDto loginDto { get; set; } = new LoginDto();
+
+
+    private async Task SaveChanges()
+    {
+        var response = await _strapiClient.LoginAsync(loginDto);
+
+        await ProtectedLocalStorage.SetAsync(LocalStorageKeys.UserAuth.ToString(), response);
+        navman.NavigateTo("/", true);
+    }
+
+}

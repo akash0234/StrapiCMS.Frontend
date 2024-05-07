@@ -1,0 +1,43 @@
+﻿
+@using StrapiCMS.Entity.PageModel
+
+@inject IConfiguration _configuration
+<HeadContent>
+    <style>
+      
+    </style>
+</HeadContent>
+<section class="lorem lorem_2 innovation_section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9 text-center mx-auto mb-lg-5 mb-3 ">
+
+                <p class="subtitle-1 text-center ">
+                    Innovation
+                </p>
+
+                <h3 class="section-title text-center">Spirit of our founder.</h3>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 my-lg-auto mb-5 mt-5 mb-lg-auto text-center">
+                <img src="https://jgsostore.blob.core.windows.net/submarinepens/36-4322799595085.png" class="img-fluid " alt="" title="">
+            </div>
+            <div class="col-lg-6 my-lg-auto">
+                <div class="content-div mb-5">
+                    <p class="arrow">Shalin Gandhi, founder of the Submarine brand, always drove his company’s success through the use of innovation. As he famously put it: “It will always be possible to make a better pen”.</p><p class="arrow">Over the years, Shalin has been recognized as an innovator, continuing this tradition of innovation with its designs, pen constructions, materials and shapes.</p>
+                </div>
+                <a href="#" class="btn_1 mt-3">Find Out More</a>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+@code {
+
+    [Parameter]
+    public SectionHero sectionHeroModel { get; set; }
+
+}

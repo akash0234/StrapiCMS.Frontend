@@ -1,0 +1,334 @@
+﻿@page "/register"
+
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using StrapiCMS.ApiClient.Repositories
+@using StrapiCMS.Entity.Constans
+@using StrapiCMS.Entity.CustomAttributes
+@using StrapiCMS.Entity.Dto
+@using StrapiCMS.Entity.Enums
+@using StrapiCMS.Frontend.CartServices
+@using StrapiCMS.Frontend.Components.UIComponents
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+
+@inject IStrapiApiClient _strapiClient
+@inject IUserCartService _cartService
+@inject ProtectedLocalStorage _protectedLocalStorage
+@inject SweetAlertService Swal
+@inject IJSRuntime _jsr
+<div class="page-main">
+    <div class="page-content">
+        <div class="main-content">
+            <div class="login-card ">
+                <div class="login-card-header ">
+                    <header class="login-card__header">
+                        <h1 class="login-card__logo">
+                            <a href="~/">
+                                <img alt="logo" src="~/img/">
+                            </a>
+                        </h1>
+                    </header>
+
+                    <div data-offline="{&quot;visible&quot;:true,&quot;appear&quot;:&quot;down&quot;}" class="connectivity-hidden login-card__content">
+                        <div class="ui-banner ui-banner--status-warning ui-banner--within-page">
+                            <div class="ui-banner__ribbon"><svg class="next-icon next-icon--size-20 next-icon--no-nudge" aria-hidden="true" focusable="false"> <use xlink:href="#CircleAlertMajor"></use> </svg></div><div class="ui-banner__content-container">
+                                <div class="ui-banner__heading"><h2 class="ui-heading">You are offline</h2></div><div class="ui-banner__content">
+                                    <div class="ui-type-container ui-type-container--spacing-tight">
+                                        <p>Reconnect or refresh the page to log in.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="login-card__content">
+                    <div class="main-card-section">
+
+
+                        <div class="headings-container">
+                            <div>
+                                <h1 class="ui-heading">Log in</h1>
+                                <h3 class="ui-subheading ui-subheading--subdued">Enter your email and password to login</h3>
+                            </div>
+                        </div>
+
+
+                        <EditForm EditContext="@editContext" OnValidSubmit="SaveChanges">
+                            <AntiforgeryToken />
+                            <DataAnnotationsValidator />
+                            <div class="ui-form__section">
+
+
+                                <div class="ui-form__group type-ahead-wrapper polaris-uplift-input-wrapper">
+                                    <div class="next-input-wrapper">
+                                        <label class="next-label" for="firstName">First Name <span style="color:red">*</span></label>
+                                        <InputText class="next-input type-ahead-input" id="firstName" @bind-Value="@registerDto.firstName" />
+                                        <ValidationMessage For="(() => registerDto.firstName)" />
+
+                                    </div>
+
+                                </div>
+                                <div class="ui-form__group type-ahead-wrapper polaris-uplift-input-wrapper">
+                                    <div class="next-input-wrapper">
+                                        <label class="next-label" for="lastName">Last Name <span style="color:red">*</span></label>
+                                        <InputText class="next-input type-ahead-input " id="lastName" @bind-Value="@registerDto.lastName" />
+                                        <ValidationMessage For="(() => registerDto.lastName)" />
+
+                                    </div>
+
+                                </div>
+                                <div class="ui-form__group type-ahead-wrapper polaris-uplift-input-wrapper">
+                                    <div class="next-input-wrapper email-input-wrapper">
+                                        <label class="next-label" for="email">Email <span style="color:red">*</span></label>
+                                        <InputText class="next-input type-ahead-input" type="email" id="email" @bind-Value="@registerDto.email" />
+                                        <ValidationMessage For="(() => registerDto.email)" />
+
+                                    </div>
+
+                                </div>
+                                <div class="ui-form__group type-ahead-wrapper polaris-uplift-input-wrapper">
+                                    <div class="next-input-wrapper email-input-wrapper">
+                                        <label class="next-label" for="country">Country <span style="color:red">*</span></label>
+                                        <InputText class="next-input type-ahead-input " readonly id="country" @bind-Value="@registerDto.country" />
+                                        <ValidationMessage For="(() => registerDto.country)" />
+
+                                    </div>
+
+                                </div>
+                                <div class="ui-form__group type-ahead-wrapper polaris-uplift-input-wrapper">
+                                    <div class="next-input-wrapper email-input-wrapper">
+                                        <label class="next-label" for="state">State <span style="color:red">*</span></label>
+                                        <DropDownList Width="100%" Class="next-select" Value="@registerDto.state" PlaceHolder="Select a state" ValueChanged="@((string? newVal)=>registerDto.state = newVal)" Data="@AuStateList" />
+                                        <ValidationMessage For="(() => registerDto.state)" />
+
+                                    </div>
+
+                                </div>
+                                <div class="ui-form__group type-ahead-wrapper polaris-uplift-input-wrapper">
+                                    <div class="next-input-wrapper email-input-wrapper">
+                                        <label class="next-label" for="postalCode">Postal Code <span style="color:red">*</span></label>
+                                        <InputNumber class="next-input type-ahead-input" id="postalCode" @bind-Value="@registerDto.postalCode" />
+                                        <ValidationMessage For="(() => registerDto.postalCode)" />
+
+                                    </div>
+
+                                </div>
+
+                                <div class="ui-form__group type-ahead-wrapper polaris-uplift-input-wrapper">
+                                    <div class="next-input-wrapper ">
+                                        <label class="next-label" for="password">Passowrd <span style="color:red">*</span></label>
+
+                                        <div class="form-group name-group conf-Password-group divpasswraper password_validate position-relative ">
+                                            <InputText class="next-input type-ahead-input" @ref="@InputPasswordRef" @onkeyup="(()=>ValidatePassword())" data-conf-password="ConfirmPassword" id="RegisterPassword" @bind-Value="@registerDto.password" />
+                                            <i class="bi bi-eye-slash showpass"></i>
+                                            <span class="charlength_validate">
+                                                Password must be minimum of 8 characters
+                                            </span>
+                                            <span class="capital_validate">
+                                                Password must include at-least one uppercase letter e.g.
+                                                ABC
+                                            </span>
+                                            <span class="smallcase_validate green">
+                                                Password must include at-least one lowercase letter e.g. abc
+
+                                            </span>
+                                            <span class="numeric_validate">Password must include at-least one number e.g. 123 </span>
+                                            <span class="special_validate">Password must include at-least one symbol e.g. (@@!#$?)</span>
+                                            <ValidationMessage For="(() => registerDto.password)" />
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+                                <div class="ui-form__group type-ahead-wrapper polaris-uplift-input-wrapper">
+                                    <div class="next-input-wrapper ">
+                                        <label class="next-label" for="confirmPassword">confirm Password <span style="color:red">*</span></label>
+                                        <div class="form-group name-group conf-Password-group divpasswraper mb-0 position-relative">
+                                            <InputText class="next-input type-ahead-input " id="ConfirmPassword" @ref="@InputConfirmPasswordRef" @onkeyup="@(()=>ConfirmValidatePassword())" data-password="RegisterPassword" @bind-Value="@registerDto.confirmPassword" />
+                                            <i class="bi bi-eye-slash showpass"></i>
+                                            <span class="red match_password">Password does not match</span>
+                                            <ValidationMessage For="(() => registerDto.confirmPassword)" />
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+
+
+                            <button type="submit" class="btn bakery-btn-style-one w-100 my-2">Register</button>
+                        </EditForm>
+
+
+
+
+
+
+
+                        <p class="help-link signup-link">
+                            <span class="help-link__text">
+                                Already have an accont?
+                            </span>
+                            <a href="/login" class="ui-button ui-button--link arrow-link">
+                                Click here to login
+                                <span class="arrow-link__icon">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.49951 10C3.49951 9.58579 3.8353 9.25 4.24951 9.25L13.9391 9.25L11.2192 6.53036C10.9263 6.23748 10.9263 5.7626 11.2192 5.4697C11.512 5.17679 11.9869 5.17676 12.2798 5.46964L16.2802 9.46964C16.4209 9.6103 16.4999 9.80107 16.4999 10C16.4999 10.1989 16.4209 10.3897 16.2802 10.5304L12.2798 14.5304C11.9869 14.8232 11.512 14.8232 11.2192 14.5303C10.9263 14.2374 10.9263 13.7625 11.2192 13.4696L13.9391 10.75L4.24951 10.75C3.8353 10.75 3.49951 10.4142 3.49951 10Z" fill="currentColor"></path>
+                                    </svg>
+                                </span>
+                            </a>
+                        </p>
+
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+            <footer class="login-footer">
+                <a class="login-footer__link" target="_blank" href="#" title="Privacy Policy">Privacy</a>
+            </footer>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private RegisterDto registerDto { get; set; } = new RegisterDto();
+
+    private List<SelectListItem> AuStateList { get; set; }
+    private InputText InputPasswordRef { get; set; }
+    private InputText InputConfirmPasswordRef { get; set; }
+
+    private bool isPasswordsValidated { get; set; }
+    private bool isConfPasswordsValidated { get; set; }
+
+    private async Task SaveChanges()
+    {
+        if (!isPasswordsValidated || !isConfPasswordsValidated)
+        {
+            await Swal.FireAsync("Error", "Please Check your password", SweetAlertIcon.Error);
+
+        }
+        else
+        {
+            try
+            {
+                var response = await _strapiClient.RegisterAsync(registerDto);
+                if (response is null)
+                {
+                    await Swal.FireAsync("Error", _strapiClient.ErrorMsg, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    //Check if already tempuser
+                    var userId = string.Empty;
+                    // Handle unauthenticated user scenario
+                    var hasTempUser = await _protectedLocalStorage.GetAsync<string>(LocalStorageKeys.TempUserID.ToString());
+                    if (hasTempUser.Success)
+                    {
+                        userId = hasTempUser.Value;
+                        //Handle Existing Products by replacing tempuserIid with Registered UserId
+                        var productCartModel = await _cartService.GetCartAsync(userId);
+                        await _cartService.UpdateTempUserIdCartAsync(userId);
+                        await _protectedLocalStorage.DeleteAsync(LocalStorageKeys.TempUserID.ToString());
+
+
+
+                    }
+
+                    await Swal.FireAsync("Success", "Please Check your Email and complete the registration", SweetAlertIcon.Success);
+                }
+
+            }
+
+            catch (Exception ex)
+            {
+                
+            }
+
+
+
+
+
+
+
+
+
+       
+        }
+
+
+    }
+
+    private async Task ValidatePassword()
+    {
+        isPasswordsValidated = await _jsr.InvokeAsync<bool>("validatePassword", InputPasswordRef.Element);
+    }
+    private async Task ConfirmValidatePassword()
+    {
+        isConfPasswordsValidated = await _jsr.InvokeAsync<bool>("confirmValidatePassword", InputConfirmPasswordRef.Element);
+    }
+    //List<string> errorMessages = new List<string>();
+    // private void ValidatePassword()
+    // {
+    //     // Clear all existing error messages related to password validation
+    //     errorMessages.Clear();
+
+    //     if (!string.IsNullOrEmpty(registerDto.password))
+    //     {
+    //         if (registerDto.password.Length < 8)
+    //         {
+    //             errorMessages.Add(PasswordValidationConstants.MinLengthErrorMessage);
+    //         }
+    //         if (!registerDto.password.Any(char.IsUpper))
+    //         {
+    //             errorMessages.Add(PasswordValidationConstants.CapitalLetterErrorMessage);
+    //         }
+    //         if (!registerDto.password.Any(char.IsLower))
+    //         {
+    //             errorMessages.Add(PasswordValidationConstants.SmallLetterErrorMessage);
+    //         }
+    //         if (!registerDto.password.Any(char.IsDigit))
+    //         {
+    //             errorMessages.Add(PasswordValidationConstants.NumberErrorMessage);
+    //         }
+    //         if (!Regex.IsMatch(registerDto.password, @"[!@#$%^&*()_+}{:;'?/>,.<]\w"))
+    //         {
+    //             errorMessages.Add(PasswordValidationConstants.SpecialCharacterErrorMessage);
+    //         }
+    //     }
+    //     StateHasChanged();
+
+
+    // }
+    private EditContext editContext;
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new EditContext(registerDto);
+
+        var strateList = StateList.States.Select(x => new SelectListItem()
+            {
+                Text = x.Key,
+                Value = x.Value
+
+            });
+        AuStateList = new List<SelectListItem>(strateList);
+
+        await base.OnInitializedAsync();
+    }
+    private List<string> validationErrors = new List<string>();
+
+
+}

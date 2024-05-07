@@ -1,0 +1,112 @@
+﻿@page "/products"
+
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using StrapiCMS.ApiClient.Repositories
+@using StrapiCMS.Entity.CartModel
+@using StrapiCMS.Entity.Enums
+@using StrapiCMS.Entity.ProductModel
+@inject IStrapiApiClient _strapiClient
+@inject IUserCartService _userCartService
+@inject IConfiguration _configuration
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ProtectedLocalStorage _protectedLocalStorage
+@using Microsoft.AspNetCore.Components.Authorization
+@using StrapiCMS.Frontend.CartServices
+
+<PageTitle>Products  || Submarine Pens</PageTitle>
+<div class="container">
+    <div class="row">
+        @foreach (var item in productListDataModel.data)
+        {
+            <div class="col-lg-3 col-md-4 col-6 mb-3 mb-lg-0 my-auto">
+                <div class="shop-product-deatails position-relative the_product_list1">
+                    <div class="position-relative initial">
+                        <div>
+
+                            <div class="product-image the_product_image">
+                                <img src="@Common.Helper.StrapiMedia.GetStrapiImage(item.attributes.img.data.FirstOrDefault().attributes.url,_configuration)" class="img-fluid w-100" alt="Submarinepens" title="Submarinepens">
+                            </div>
+                        </div>
+
+
+                        <div class="hovered-product w-100 h-100 d-flex justify-content-center align-items-center bg-white position-absolute top-0">
+                            <a href="javascript:void(0)" class="product-hiover-icons">
+                                <i class="bi-heart"></i>
+                            </a>
+                            |
+                            <a href="javascript:void(0)" class="product-hiover-icons">
+                                <i class="bi-eye"></i>
+                            </a>
+                            |
+                            <a href="javascript:void(0)" @onclick="@(async () => await UIAddToCartAsync(item.id))" class="product-hiover-icons">
+                                <i class="bi-cart"></i>
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <span class="px-2 py-1 h6 position-absolute top-0" style="background:yellow; font-size:10px;color:black; left: 0;"> @item.attributes.qtyPerPack/Pack </span>
+
+                    <div class="product-tile">
+                        <h2 class="mb-0 h6 px-2 my-2">@item.attributes.title</h2>
+
+                        <div class="ratings">
+                            <i class="bi bi-star"></i>
+                            <i class="bi bi-star"></i>
+                            <i class="bi bi-star"></i>
+                            <i class="bi bi-star"></i>
+                            <i class="bi bi-star"></i>
+                        </div>
+
+                    </div>
+                    <div class="shop-now-btn">
+                        <h4 class="pricing m-0"><i class="fa fa-inr" aria-hidden="true"></i>$ @(item.attributes.price.ToString("#.##"))<sub>AUD</sub></h4>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+
+    [CascadingParameter] private HttpContext? httpContext { get; set; }
+
+    private async Task UIAddToCartAsync(int productId)
+    {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = user.Identity?.Name;
+            var isSuccess = await _userCartService.AddToCartAsync(userId, productId, 1);
+        }
+        else
+        {
+            var userId = string.Empty;
+            // Handle unauthenticated user scenario
+            var hasTempUser = await _protectedLocalStorage.GetAsync<string>(LocalStorageKeys.TempUserID.ToString());
+            if (hasTempUser.Success)
+            {
+                userId = hasTempUser.Value;
+            }
+            else
+            {
+                userId = await _userCartService.CreateTempUser();
+            }
+
+          
+            var isSuccess = await _userCartService.AddToCartAsync(userId, productId, 1);
+        }
+    }
+
+
+    private ProductListDataModel productListDataModel { get; set; } = new ProductListDataModel();
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await _strapiClient.GetCollectionsType<ProductListDataModel>("products", 0, 30);
+        productListDataModel = result;
+        await base.OnInitializedAsync();
+    }
+}

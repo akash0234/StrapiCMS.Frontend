@@ -1,0 +1,190 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using StrapiCMS.Common.Helper
+@using StrapiCMS.Entity.CartModel
+@using StrapiCMS.Entity.Enums
+@using StrapiCMS.Entity.NavbarModel
+@using StrapiCMS.Frontend.CartServices
+
+@inject IJSRuntime _jsr
+@inject ProtectedLocalStorage _protectedLocalStorage
+@inject IUserCartService _userCartService
+@inject NavigationManager navman
+
+@inject IConfiguration config
+
+
+<header class="@(IsSticky ? "sticky" : "")" @ref="headerElement">
+    <div id="header" class="submarinepens_header">
+        <div class="container-lg">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <div class="navbar-brand d-block" href="#">
+                    <a href="/">
+                        <div class="logo">
+                            <img src="@StrapiMedia.GetStrapiImage(NavbarModel?.navbarLogo?.logoImg?.data?.attributes?.url,config)" width="247px" height="78px" alt="" title="" class="img-fluid">
+                        </div>
+                    </a>
+                </div>
+                <div class="navbar the_navbar">
+
+
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <div class="custom-nav mx-auto">
+                            <ul class="navbar-nav">
+                                @if (NavbarModel != null )
+                                {
+                                    if (NavbarModel.links.Count > 0)
+                                    {
+                                        @foreach (var navItem in NavbarModel.links)
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link" aria-current="page" target="@(navItem.newTab? "_blank":"_self")" href="@navItem.url">@navItem.text</a>
+                                            </li>
+                                        }
+                                    }
+                                   
+                                }
+
+                                <li class="nav-item d-lg-none d-sm-block">
+                                    <AuthorizeView>
+                                        <Authorized>
+                                            <p>Hello, @context.User.Identity?.Name!</p>
+                                        </Authorized>
+                                        <NotAuthorized>
+                                            <div class="d-flex align-items-center ">
+                                                <a class="nav-link dropdown-toggle py-0 text-black" href="/login">
+                                                    LOGIN /
+                                                </a>
+                                                <a class="nav-link dropdown-toggle py-0 text-black" href="/register">
+                                                    REGISTER
+                                                </a>
+                                            </div>
+                                        </NotAuthorized>
+                                    </AuthorizeView>
+                                    
+                                </li>
+                                
+                                
+                            </ul>
+
+                        </div>
+                    </div>
+
+
+                    <div class="no-collapse oh-collapse" id="">
+                        <div class="custom-nav ms-auto flex-row ">
+                            <ul class="navbar-nav icons flex-row align-items-center">
+                                <li class="nav-item d-lg-block d-sm-none">
+                                    <AuthorizeView>
+                                        <Authorized>
+                                            <p>Hello, @context.User.Identity?.Name!</p>
+                                            <button @onclick="LogoutAsync" type="button">Logout</button>
+                                        </Authorized>
+                                        <NotAuthorized>
+                                            <div class=" d-flex align-items-center">
+                                                <a class="nav-link dropdown-toggle py-0 text-black" href="/login">
+                                                    LOGIN /
+                                                </a>
+                                                <a class="nav-link dropdown-toggle py-0 text-black" href="/register">
+                                                    REGISTER
+                                                </a>
+                                            </div>
+                                        </NotAuthorized>
+                                    </AuthorizeView>
+                                    
+                                </li>
+
+                                <li class="nav-item dropdown">
+
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle py-0 text-black" href="#">
+                                        <i id="boot-icon" class="bi bi-search" style="font-size: 18px; opacity: 1; color: rgb(0, 0, 0);"></i>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle py-0 text-black" href="#">
+                                        <i id="boot-icon" class="bi bi-heart" style="font-size: 18px; color: rgb(0, 0, 0);"></i>
+                                    </a>
+                                </li>
+                                <li class="nav-item cart-icon ">
+                                    <a class="nav-link py-0" href="/viewcart">
+                                        <i class="bi bi-cart font-25"></i>
+                                        <span id="cartCount">@CartTotal</span>
+                                    </a>
+                                </li>
+
+
+
+                            </ul>
+                            <button class="navbar-toggler navbar_toggle" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="show-mobile-nav">
+                                <i class="bi bi-list menuIcon"></i>
+                                <i class="bi bi-x closeIcon" style="display: none;"></i>
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+        </div>
+    </div>
+</header>
+@code {
+    [Parameter]
+    public NavbarDataModel NavbarModel { get; set; }
+    private bool IsSticky { get; set; }
+    private ElementReference headerElement;
+
+    private int CartTotal{ get; set; }
+
+    private string UserID { get; set; }
+
+    public async Task LogoutAsync()
+    {
+        // Sign out the user
+
+        await _protectedLocalStorage.DeleteAsync(LocalStorageKeys.UserAuth.ToString());
+        // Update authentication state
+        navman.NavigateTo("/", true);
+
+    }
+    private async Task<int> GetUserCartTotal(string userId)
+    {
+        var totalProducts = await _protectedLocalStorage.GetAsync<CartDataModel>(LocalStorageKeys.UserCart.ToString() + "__" + userId);
+        return totalProducts.Success ? totalProducts.Value.ProductList.Sum(x => x.ProductQty) : 0;
+    }
+    protected override  async Task OnInitializedAsync()
+    {
+
+        UserID = await _userCartService.GetUserID();
+
+        CartTotal = await GetUserCartTotal(UserID);
+
+
+        _userCartService.OnCartValueChanged += async (CartDataModel cartData) => await ChangeCartValueAsync(cartData);
+
+        await base.OnInitializedAsync();
+    }
+    private async Task ChangeCartValueAsync(CartDataModel cartData)
+    {
+
+        var totalItem = cartData.ProductList.Sum(x => x.ProductQty);
+
+        CartTotal = totalItem;
+        await InvokeAsync(StateHasChanged);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _jsr.InvokeVoidAsync("registerScrollListener", headerElement);
+
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

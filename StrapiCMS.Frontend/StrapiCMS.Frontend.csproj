@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StraapiCMS.ApiClient\StrapiCMS.ApiClient.csproj" />
+    <ProjectReference Include="..\StrapiCMS.Common\StrapiCMS.Common.csproj" />
+    <ProjectReference Include="..\StrapiCMS.Entity\StrapiCMS.Entity.csproj" />
+    <ProjectReference Include="..\StrapiSharp\StrapiSharp.csproj" />
+  </ItemGroup>
+
+</Project>

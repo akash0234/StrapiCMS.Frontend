@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+<div class="custom-dropdown @Class  ">
+    <div @onfocusout="() => _dropdownExpanded = false" style="position: relative">
+        <button type="button" @onclick="() => _dropdownExpanded = !_dropdownExpanded" @onclick:stopPropagation="true"  style="border: 1px solid gray;width:@Width">
+            @(Value ?? (!string.IsNullOrEmpty(PlaceHolder) ? PlaceHolder : "Select an option"))
+            <div style="position:absolute; width: 100%; left: 0; top: 50px; overflow: auto; max-height: 200px; display: @(_dropdownExpanded ? "unset" : "none")">
+              @*   <div @onclick="() => onValueChanged(null)"
+                     @onclick:stopPropagation="true">
+                    none
+                </div> *@
+                <Virtualize Items="Data">
+                    <div @onclick="async () =>await OnValueChanged(context.Value)"
+                         @onclick:stopPropagation="true">
+                        
+                        @context.Text
+                    </div>
+                </Virtualize>
+            </div>
+        </button>
+    </div>
+</div>
+
+@code {
+    private bool _dropdownExpanded = false;
+    [Parameter]
+    public List<SelectListItem> Data { get; set; }
+    [Parameter]
+    public string PlaceHolder { get; set; }
+    [Parameter]
+    public  string? Value { get; set; }
+    [Parameter]
+    public  string? Width { get; set; }
+    [Parameter]
+    public  string? Class { get; set; }
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnValueChanged(string? val)
+    {
+        // Do something with the selected value
+        Value = Data.FirstOrDefault(x => x.Value == val).Text;
+        await ValueChanged.InvokeAsync(val);
+
+        _dropdownExpanded = false;
+    }
+}

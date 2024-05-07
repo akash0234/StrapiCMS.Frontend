@@ -1,0 +1,147 @@
+﻿@using StrapiCMS.Entity.FooterModel
+@inject IConfiguration _configuration
+@if (FooterModel != null)
+{
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-12 mb-4">
+                    <div class="footer_logo">
+                        <a href="/"><img src="@(Common.Helper.StrapiMedia.GetStrapiImage(FooterModel?.footerLogo?.logoImg?.data?.attributes?.url,_configuration))" class="img-fluid" width="248" height="78" alt="submarinepens" title="submarinepens"></a>
+                    </div>
+                    <p class="text-center text-md-start mb-3">@FooterModel?.footerLogo?.logoText</p>
+                    <div class="footer_social_icon mb-4">
+                        @if (FooterModel?.socialLinks?.Count > 0)
+                        {
+                            @foreach (var socialItem in FooterModel.socialLinks)
+                            {
+                                <a target="@(socialItem.newTab ? "_blank":"_self")" href="@socialItem.url" class="me-2">
+                                    <span>
+                                        <i class="bi bi-@socialItem.social"></i>
+                                    </span>
+                                </a>
+                            }
+                        }
+                        
+                        @* <a target="_blank" href="https://www.facebook.com/checkpoint/1501092823525282/?next=https%3A%2F%2Fwww.facebook.com%2FSubmarineDesignerPens" class="me-2">
+                    <span>
+                    <i class="bi bi-facebook"></i>
+                    </span>
+                    </a>
+                    <a target="_blank" href="https://twitter.com/home?lang=en" class="me-2">
+                    <span>
+                    <i class="bi bi-twitter-x"></i>
+                    </span>
+                    </a>
+                    <a target="_blank" href="https://www.instagram.com/submarine_pens/" class="me-2">
+                    <span>
+                    <i class="bi bi-instagram"></i>
+                    </span>
+                    </a>
+                    <a target="_blank" href="https://www.linkedin.com/company/submarine-pens/" class="me-2">
+                    <span>
+                    <i class="bi bi-linkedin"></i>
+                    </span>
+                    </a> *@
+                    </div>
+                </div>
+
+
+                <div class="col-lg-3 col-md-12  footer-link">
+                    <div class="footer_heading">
+                        <h3>QUICK CONTACT</h3>
+                        <ul>
+                            <li>
+                                <a href="#" class="d-flex align-items-start text-black">
+                                    <span><i class="bi bi-geo-alt-fill"></i></span>
+                                    <p>
+                                        @FooterModel?.contacts?.location
+                                    </p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="mailto:team@submarinepens.com.au" class="d-flex align-items-start text-black">
+                                    <span><i class="bi bi-envelope-fill"></i></span>
+                                    <p>
+                                        @FooterModel?.contacts?.email
+                                    </p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="tel:61 0418 700 193" class="d-flex  align-items-start text-black">
+                                    <span><i class="bi bi-telephone-fill"></i></span>
+                                    <p>
+                                        @FooterModel?.contacts?.phone
+                                    </p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-12 footer-link mb-4">
+                    <div class="footer_heading">
+                        <h3>IMPORTANT LINKS</h3>
+                        <ul class="links">
+                            @* <li class="nav-item active">
+                                <a href="/refund-or-exchange-policy">Refund / Exchange Policy</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a href="/privacy-policy">Privacy Policy</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a href="/terms-and-condition">Terms And Condition</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a href="/blog">Blog</a>
+                            </li> *@
+                            @if (FooterModel?.legalLinks?.Count > 0)
+                            {
+                                @foreach (var legalItem in FooterModel.legalLinks)
+                                {
+                                    <li class="nav-item">
+                                        <a href="@legalItem.url">@legalItem.text</a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-12 footer-link mb-4">
+                    <div class="footer_heading">
+                        <h3>QUICK LINKS</h3>
+                        <ul class="links">
+                           @*  <li class="nav-item active">
+                                <a href="/refund-or-exchange-policy">Refund / Exchange Policy</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a href="/privacy-policy">Privacy Policy</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a href="/terms-and-condition">Terms And Condition</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a href="/blog">Blog</a>
+                            </li> *@
+                            @if (FooterModel?.menuLinks?.Count > 0)
+                            {
+                                @foreach (var menuItem in FooterModel.menuLinks)
+                                {
+                                    <li class="nav-item">
+                                        <a href="@menuItem.url">@menuItem.text</a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+}
+
+@code {
+    [Parameter]
+    public FooterDataModel FooterModel { get; set; }
+}

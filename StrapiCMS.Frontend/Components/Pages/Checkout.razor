@@ -1,0 +1,129 @@
+﻿@page "/checkout"
+@using Microsoft.AspNetCore.Components.Authorization
+@using StrapiCMS.ApiClient.Repositories
+@using StrapiCMS.Entity.CartModel
+@using StrapiCMS.Entity.PageModel
+@using StrapiCMS.Entity.ProductModel
+@using StrapiCMS.Frontend.CartServices
+@using StrapiCMS.Frontend.Components.Layout
+
+@inject IStrapiApiClient _strapiApiClient
+@inject IUserCartService _userCart
+@inject IConfiguration _configuration
+
+<BreadCrumb/>
+<section class="bakery-cart-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-12">
+                <div class="col-12 text-lg-end mb-4">
+                    <div class="bakery-cart-total d-lg-flex justify-content-between align-items-center">
+                        <div class="bakery-head-ttitle">
+                            <h2 class="mb-3 mb-lg-0">CHECK OUT</h2>
+                        </div>
+                        <a href="/shop" id=""  class="btn_2">BACK TO SHOPPING</a>
+                    </div>
+
+
+                </div>
+                <section class="bakery-cart-section">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="bakery-cart-total d-flex justify-content-between align-items-center">
+                                    <div class="bakery-head-ttitle mb-lg-3">
+                                        <h2 class="mt-2">ORDER DETAILS</h2>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-lg-8 ">
+                                <div class="Yorder">
+                                    <div class="row">
+                                        <div class="col-lg-9">
+                                            <h6 style="text-decoration:underline">Delivery Address</h6>
+                                            <p>shivam  rajak,</p>
+                                            <p>bhopal, Queensland,</p>
+                                            <p> Australia, 4000,</p>
+                                            <p> 4712589630</p>
+
+
+                                        </div>
+                                        <div class="col-lg-3 my-auto text-end">
+                                            <a href="/account/address?returnUrl=checkout"><i class="bi bi-pencil"></i> Edit</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="Yorder">
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <th colspan="2">Your order</th>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    Cellophane Bag 60mmx100mm x 1
+                                                </td>
+                                                <td>$10.00</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Subtotal</td>
+                                                <td>
+                                                    $10.00
+                                                </td>
+                                            </tr>
+
+
+
+                                            <tr>
+                                                <td>Shipping</td>
+                                                <td>$15.00</td>
+                                            </tr>
+                                            <tr>
+
+                                                <td>Grand Total</td>
+                                                <td>
+                                                    $25.00
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class=" bool-option">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="payment_option" value="Square" id="Square">
+                                            <label for="Square">Square</label>
+                                            <img src="https://www.logolynx.com/images/logolynx/cd/cd7b87b9385bc936d7d7f8680f67923e.png" alt="" width="100" height="100%">
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="payment_option" value="Paypal" id="Paypal">
+                                            <label for="Paypal">Paypal</label>
+                                            <img src="https://www.logolynx.com/images/logolynx/c3/c36093ca9fb6c250f74d319550acac4d.jpeg" alt="" width="100" height="100%">
+                                        </div>
+                                    </div>
+
+                                    <a id="proceedToBuy" href="javascript:void(0)" class="btn bakery-btn-style-one">Place Order</a>
+                                </div><!-- Yorder -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+           
+
+        </div>
+    </div>
+</section>
+@code {
+    
+    protected override async Task OnInitializedAsync()
+    {
+        
+        await base.OnInitializedAsync();
+    }
+
+}

@@ -1,0 +1,38 @@
+﻿@using StrapiCMS.ApiClient.Repositories
+@using StrapiCMS.Entity.GlobalModel
+@inherits LayoutComponentBase
+@inject IStrapiApiClient _strapiClient
+@inject NavigationManager _navManager
+
+@if (_navManager.Uri.Contains("login") || _navManager.Uri.Contains("register"))
+{
+    
+    @Body
+}
+else
+{
+    <NavMenu NavbarModel="@globalDataModel?.data?.attributes?.navbar" />
+    <main>
+        @Body
+    </main>
+    <Footer FooterModel="@globalDataModel?.data?.attributes?.footer" />
+}
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+@code {
+    private GlobalDataModel globalDataModel { get; set; }
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var abc = await _strapiClient.GetGlobalDetails();
+        globalDataModel = abc;
+        await base.OnInitializedAsync();
+        
+        
+    }
+}

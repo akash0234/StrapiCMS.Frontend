@@ -1,0 +1,22 @@
+﻿@page "/products-details/{productId}"
+@using StrapiCMS.ApiClient.Repositories
+@using StrapiCMS.Entity.ProductModel
+@inject IStrapiApiClient _strapiApiClients
+
+
+
+@code {
+    [Parameter]
+    public string productId { get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+       // var productdetails = await _strapiCilent.GetCollectionsTypeByCustomParam<ProductDataModel>("products", "modelName", ProductSlug);
+        var productDetails = (await _strapiApiClients.GetCollectionsType<ProductListDataModel>("products", Int32.Parse( productId))).data.FirstOrDefault() ;
+
+        await base.OnInitializedAsync();
+    }
+}

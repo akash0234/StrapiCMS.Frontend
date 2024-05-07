@@ -1,0 +1,28 @@
+﻿
+<div class="qty-input">
+    <button class="qty-count qty-count--minus" @onclick="DecrementCount" disabled="@(CurrentCount == 1)" data-action="minus" type="button">-</button>
+
+    <InputNumber class="product-qty" style="pointer-events:none" TValue="int" min="1" max="100" @bind-Value="@CurrentCount" />
+    <button class="qty-count qty-count--add" data-action="add" @onclick="IncrementCount" type="button">+</button>
+</div>
+@code {
+    [Parameter]
+    public int CurrentCount { get; set; } = 1;
+   
+
+    [Parameter]
+    public EventCallback<int> ValueChanged { get; set; }
+
+    private async Task IncrementCount()
+    {
+        CurrentCount++;
+        await ValueChanged.InvokeAsync(CurrentCount);
+
+    }
+
+    private async Task DecrementCount()
+    {
+        CurrentCount--;
+        await ValueChanged.InvokeAsync(CurrentCount);
+    }
+}

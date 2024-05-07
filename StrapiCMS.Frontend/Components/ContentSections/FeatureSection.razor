@@ -1,0 +1,56 @@
+﻿
+@using StrapiCMS.Entity.PageModel
+
+@inject IConfiguration _configuration
+<HeadContent>
+    <style>
+       
+    </style>
+</HeadContent>
+<section class="overlapping-sec @FeatureSectionModel.sectionClass">
+    <div class="container">
+        <div class="row overlap-pos">
+            <div class="col-12 text-center">
+                @if (!string.IsNullOrEmpty(FeatureSectionModel.heading))
+                {
+                    <h4>@FeatureSectionModel.heading</h4>
+                }
+                @if (!string.IsNullOrEmpty(FeatureSectionModel.description))
+                {
+                    <h4>@FeatureSectionModel.heading</h4>
+                }
+            </div>
+            @foreach (var item in FeatureSectionModel.feature)
+            {
+                <div class="col-lg-4 overlap-content text-center">
+                    <img src="@Common.Helper.StrapiMedia.GetStrapiImage(item.media.data.attributes.url,_configuration)" class="lazyload" alt="Submarine" title="Submarine">
+                    <h4>@item.title</h4>
+                    <p>@item.description</p>
+                </div>
+            }
+           
+           @* 
+            <div class="col-lg-4 overlap-content text-center">
+                <img src="https://jgsostore.blob.core.windows.net/submarinepens/15-4318620963975.png" class="lazyload" alt="Submarine" title="Submarine">
+                <h4>Prestige Personified</h4>
+                <p></p><p>Flawlessly crafted using precious metals and a solid gold nib, Submarine premium is a prestigious, yet still contemporary choice.</p><p></p>
+            </div>
+            <div class="col-lg-4 overlap-content text-center">
+                <img src="https://jgsostore.blob.core.windows.net/submarinepens/16-4318623161614.png" class="lazyload" alt="Submarine" title="Submarine">
+                <h4>Gift For Generations</h4>
+                <p></p><p>Be inspired by our writing instruments: elegant pens that bring pleasure to handwriting and highlight the personal nature of your script.</p><p></p>
+            </div>
+            <div class="col-lg-4 overlap-content text-center">
+                <img src="https://jgsostore.blob.core.windows.net/submarinepens/17-4318624181602.png" class="lazyload" alt="Submarine" title="Submarine">
+                <h4>Emblem Of Excellence</h4>
+                <p></p><p>Submarine ingenuity uses breakthrough innovation to intuitively adapt to each user’s handwriting style, resulting in an exceptional writing experience.</p><p></p>
+            </div> *@
+        </div>
+    </div>
+</section>
+@code {
+
+    [Parameter]
+    public SectionFeatures FeatureSectionModel { get; set; }
+
+}

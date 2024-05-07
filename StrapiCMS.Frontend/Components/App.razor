@@ -1,0 +1,65 @@
+﻿@using StrapiCMS.Entity.PageModel
+@using StrapiCMS.Frontend.SessionServices.Repositories
+@inject IMetaService MetaService
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="StrapiCMS.Frontend.styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style2.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    @if (Meta != null)
+    {
+        <meta name="title" content="@Meta.metaTitle" />
+        <meta name="description" content="@Meta.metaDescription" />
+        <meta name="keywords" content="@Meta.keywords" />
+    }
+    <HeadOutlet @rendermode="InteractiveServer" />
+</head>
+
+<body>
+
+    <Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
+    <script src="_framework/blazor.web.js"></script>
+    <script src="_content/CurrieTechnologies.Razor.SweetAlert2/sweetAlert2.min.js"></script>
+    <script src="js/site.js"></script>
+    
+</body>
+
+</html>
+@code {
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
+    private SeoModel Meta { get; set; }
+
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        Meta = new SeoModel
+            {
+                metaTitle = "Default Title",
+                metaDescription = "Default Description",
+                keywords = "default, keywords",
+                shareImage = null
+            };
+        // Set meta details using the injected MetaService
+        await MetaService.SetMetaAsync(Meta);
+        MetaService.MetaChanged += HandleMetaChanged;
+    }
+
+    private void HandleMetaChanged(object sender, EventArgs e)
+    {
+        Meta = MetaService.Meta;
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,40 @@
+﻿
+@using StrapiCMS.Entity.PageModel
+
+@inject IConfiguration _configuration
+<HeadContent>
+    <style>
+        .about_banner {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            background-position: top;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        @@media (max-width: 991px){
+
+            .about_banner {
+                height: 40vh;
+            }
+        }
+    </style>
+</HeadContent>
+<section class="about_banner" style="background-image:url(@Common.Helper.StrapiMedia.GetStrapiImage(sectionHeroModel.picture.data.attributes.url,_configuration))">
+    <div class="container position-relative">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="content">
+                    <p>@sectionHeroModel.description</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@code {
+
+    [Parameter]
+    public SectionHero sectionHeroModel { get; set; }
+
+}

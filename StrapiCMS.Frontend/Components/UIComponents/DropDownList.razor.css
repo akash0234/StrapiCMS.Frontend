@@ -1,0 +1,25 @@
+﻿.custom-dropdown button
+{
+    text-align:left;
+    background:inherit;
+}
+
+    .custom-dropdown button > div {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        top: 50px;
+        overflow: auto;
+        max-height: 200px;
+        /* display: none; */
+        background: white;
+        /* border: 1px solid #ccc; */
+        /* padding: 10px 4px; */
+        box-shadow: 3px 4px 8px #ccc;
+        border-left: 1px solid #ccc;
+        border-top: 1px solid #ccc;
+        z-index: 99;
+    }
+    .custom-dropdown button > div >div{
+        padding:4px 10px;
+    }

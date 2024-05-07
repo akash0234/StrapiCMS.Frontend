@@ -1,0 +1,92 @@
+﻿@page "/"
+
+@using StrapiCMS.ApiClient.Repositories
+@using StrapiCMS.Entity.PageModel
+@using StrapiCMS.Entity.ProductModel
+@using System.Text.Json
+@using StrapiCMS.Frontend.Components.ContentSections
+@using StrapiCMS.Frontend.SessionServices.Repositories
+@inject IStrapiApiClient strapiClient
+@inject IMetaService MetaService
+
+<style>
+    header {
+        margin-bottom: -110px;
+        background: transparent;
+    }
+</style>
+<PageTitle>Home</PageTitle>
+
+@foreach (var section in pageSectionList)
+{
+    if (section.__component == "sections.hero")
+    {
+
+        <HeroSection sectionHeroModel="sectionHero" />
+    }
+    else if (section.__component == "sections.features")
+    {
+
+        <FeatureSection FeatureSectionModel="sectionFeatures" />
+    }
+}
+
+
+
+@code{
+
+
+
+
+  
+    private SectionHero sectionHero { get; set; } = new SectionHero();
+    private SectionFeatures sectionFeatures { get; set; } = new SectionFeatures();
+    private List<ContentSectionBaseModel>  pageSectionList { get; set; } = new List<ContentSectionBaseModel>();
+
+    private PageBaseModel pageBaseModel { get; set; } = new PageBaseModel();
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Access the App component and set meta details
+        
+       
+
+        //string collectionName = "products";
+        //var todo = await strapiClient.GetCollectionsType<Product>(collectionName);
+        pageBaseModel = await strapiClient.GetPageBySlug("home");
+
+
+        if (pageBaseModel != null && pageBaseModel.data.FirstOrDefault().attributes.contentSections.Count > 0)
+        {
+            await MetaService.SetMetaAsync(pageBaseModel.data.FirstOrDefault().attributes.seo);
+            foreach (var section in pageBaseModel.data.FirstOrDefault().attributes.contentSections)
+            {
+                var sectionDetails = JsonSerializer.Deserialize<ContentSectionBaseModel>(section.ToString());
+
+
+                if (sectionDetails.__component == "sections.hero")
+                {
+                    sectionHero = JsonSerializer.Deserialize<SectionHero>(section.ToString());
+
+                }
+                if (sectionDetails.__component == "sections.features")
+                {
+                    sectionFeatures = JsonSerializer.Deserialize<SectionFeatures>(section.ToString());
+
+                }
+
+                pageSectionList.Add(sectionDetails);
+
+
+               
+
+
+
+            }
+        }
+       
+        await base.OnInitializedAsync();
+    }
+}

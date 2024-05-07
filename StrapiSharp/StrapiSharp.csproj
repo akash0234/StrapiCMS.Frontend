@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>StrapiSharp</PackageId>
+    <Version>0.1.4</Version>
+    <Authors>Alex Loren</Authors>
+    <PackageTags>Strapi;REST;API</PackageTags>
+    <Description>StrapiSharp is a lightweight C# library for easy integration with Strapi CMS, allowing seamless communication with Strapi's RESTful API.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/lorenalexm/StrapiSharp</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/lorenalexm/StrapiSharp</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Requests\" />
+    <None Remove="Enums\" />
+    <None Remove="Models\" />
+    <None Remove="Requests\Convenience\" />
+    <None Remove="Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Requests\" />
+    <Folder Include="Enums\" />
+    <Folder Include="Models\" />
+    <Folder Include="Requests\Convenience\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,171 @@
+﻿@page "/viewcart"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using StrapiCMS.ApiClient.Repositories
+@using StrapiCMS.Entity.CartModel
+@using StrapiCMS.Entity.Enums
+@using StrapiCMS.Entity.PageModel
+@using StrapiCMS.Entity.ProductModel
+@using StrapiCMS.Frontend.CartServices
+@using StrapiCMS.Frontend.Components.Layout
+@using StrapiCMS.Frontend.Components.UIComponents
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IStrapiApiClient _strapiApiClient
+@inject IUserCartService _userCart
+@inject IConfiguration _configuration
+@inject ProtectedLocalStorage _protectedLocalStorage
+<BreadCrumb/>
+<section class="bakery-cart-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-12">
+                <div class="col-12 text-lg-end mb-4">
+                    <div class="bakery-cart-total d-lg-flex justify-content-between align-items-center">
+                        <div class="bakery-head-ttitle">
+                            <h2 class="mb-3 mb-lg-0">CART DETAILS</h2>
+                        </div>
+                        <a href="/shop" id="" onclick="updateCart()" class="btn_2">BACK TO SHOPPING</a>
+                    </div>
+
+
+                </div>
+                <div class="bakery-table table-responsive">
+                    <table class="table responsive-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2" style="width:40%">Product</th>
+
+                                <th style="width:10%">Price</th>
+                                <th style="width:20%">Quantity</th>
+                                <th style="width:5%">Subtotal</th>
+                                <th style="width:5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart_table_body">
+                            @if (cartDataModel is not null)
+                            {
+                                if (cartDataModel.ProductList.Count > 0)
+                                {
+                                    @foreach (var item in cartDataModel.ProductList)
+                                    {
+                                        var sutotal = CartProductDetails[item.ProductId].attributes.price * item.ProductQty;
+                                        <tr>
+                                            <td data-label="ProductTitle">
+                                                <img width="60" height="60" src="@Common.Helper.StrapiMedia.GetStrapiImage(CartProductDetails[item.ProductId].attributes.img.data.FirstOrDefault().attributes.url, _configuration)" />
+                                            </td>
+                                            <td class="d-none d-lg-table-cell">
+                                                <div class="d-lg-flex flex-lg-column">
+                                                    <span>@CartProductDetails[item.ProductId].attributes.title</span>
+                                                    <small style="font-size:10px">pack of x @CartProductDetails[item.ProductId].attributes.qtyPerPack</small>
+                                                </div>
+
+                                            </td>
+                                            <td data-label="Price">$@CartProductDetails[item.ProductId].attributes.price</td>
+                                            <td data-label="Quantity">
+                                                <div class="bakery-num-block skin-4 " style="width: fit-content;">
+                                                    <Counter CurrentCount="@item.ProductQty" ValueChanged="@(async(int newVal) => await CounterValueChanged(newVal,item.ProductId))" />
+                                                </div>
+
+                                            </td>
+                                            <td data-label="Subtotal">$@sutotal</td>
+                                            <td><a href="javascript:void(0)" @onclick="@(async()=> await RemoveFromCart(item.ProductId))" class="removeCartItem"><i class="bi bi-trash"></i></a></td>
+                                        </tr>
+                                      
+                                    }
+
+                                }
+                                else
+                                {
+                                    <tr class="noProducts">
+                                        <td colspan="6">
+                                            <h4 class="text-center">No Products are added to your cart yet.</h4>
+                                        </td>
+                                    </tr>
+
+                                }
+                            }
+                            else
+                            {
+                                <tr class="noProducts">
+                                    <td colspan="6">
+                                        <h4 class="text-center">No Products are added to your cart yet.</h4>
+                                    </td>
+                                </tr>
+
+                            }
+
+
+                        </tbody>
+                    </table>
+
+
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="bakery-apply-code">
+                    <div class="apply-code-form d-flex justify-content-between align-items-start">
+
+                        <div class="promo-code-div">
+                                <input type="text" disabled="" name="CouponCode" value="" placeholder="Coupon Code" style="text-transform: initial;">
+                                <button class="btn bakery-btn-style-one" disabled="" id="applyCouponCode">Apply Coupon
+                                   
+                                </button>
+                                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" style="margin-left: -48px; color: #80b918;vertical-align: -2px; " aria-label="To access promo code, please login." data-bs-original-title="To access promo code, please login."></i>
+                                
+                                <div class="promocodeContainer">
+                                </div>
+                        </div>
+                        <button id="proceedCheckout"@onclick="GotoCheckOut" class="btn bakery-btn-style-one">Proceed To Checkout</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+@code {
+
+    [CascadingParameter] private HttpContext? httpContext { get; set; }
+
+    private string UserId { get; set; }
+
+    private CartDataModel cartDataModel { get; set; }
+
+    private Dictionary<int, GenericDataModel<Product>> CartProductDetails { get; set; } = new Dictionary<int, GenericDataModel<Product>>();
+    private async Task CounterValueChanged(int newVal,int productId)
+    {
+        var isSuccess = await _userCart.UpdateToCartAsync(UserId, productId, newVal);
+        cartDataModel.ProductList.FirstOrDefault(x => x.ProductId == productId).ProductQty = newVal;
+    }
+    private async Task GotoCheckOut()
+    {
+        var check = cartDataModel.ProductList;
+    }
+    private async Task RemoveFromCart(int productId)
+    {
+       
+        var result = await _userCart.RemoveFromCartAsync(UserId, productId);
+        if (result)
+        {
+            cartDataModel.ProductList.Remove(cartDataModel.ProductList.FirstOrDefault(x => x.ProductId == productId));
+        }
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        UserId = await _userCart.GetUserID();
+
+        var productCart = await _userCart.GetCartAsync(UserId);
+
+        @foreach(var product in productCart.ProductList)
+        {
+            var productDetails = await _strapiApiClient.GetCollectionsType<ProductListDataModel>("products", product.ProductId);
+            CartProductDetails.Add(product.ProductId, productDetails.data.FirstOrDefault());
+        }
+        cartDataModel = productCart;
+        await base.OnInitializedAsync();
+    }
+    
+
+}
